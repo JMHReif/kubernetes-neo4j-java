@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: kube-neo4j-books
+  name: kube-neo4j-books
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kube-neo4j-books
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: kube-neo4j-books
+    spec:
+      containers:
+      - image: jmreif/kube-neo4j-books
+        name: kube-neo4j-books
+        ports:
+        - containerPort: 8080
+        env:
+          - name: SPRING_NEO4J_URI
+            value: neo4j://<release/projectName>.neo4j.svc.cluster.local:7687
+          - name: SPRING_NEO4J_AUTHENTICATION_USERNAME
+            value: neo4j
+          - name: SPRING_NEO4J_AUTHENTICATION_PASSWORD
+            value: <NEO4J_PASSWORD>
+          - name: SPRING_NEO4J_DATABASE
+            value: neo4j
+        resources: {}
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kube-neo4j-service
+spec:
+  selector:
+    app: kube-neo4j-books
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 30080  # You can choose any port in the range 30000-32767
+  type: NodePort
